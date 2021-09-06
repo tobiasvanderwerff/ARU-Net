@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 
 import time
+import os
 
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -52,21 +53,33 @@ class Inference_pb(object):
                     n_class = aPred.shape[3]
                     channels = batch_x.shape[3]
                     fig = plt.figure()
+                    out_dir = './output/'
+                    try:
+                        os.mkdir(out_dir)
+                    except OSError:
+                        pass
+                    img_stem, img_suffix = os.path.basename(aImgPath).split('.')
                     for aI in range(0, n_class+1):
                         if aI == 0:
-                            a = fig.add_subplot(1, n_class+1, 1)
+                            #a = fig.add_subplot(1, n_class+1, 1)
+                            path = os.path.join(out_dir, img_stem + '.' + img_suffix)
                             if channels == 1:
-                                plt.imshow(batch_x[0, :, :, 0], cmap=plt.cm.gray)
+                                #plt.imshow(batch_x[0, :, :, 0], cmap=plt.cm.gray)
+                                misc.imsave(path, batch_x[0, :, :, 0])
                             else:
-                                plt.imshow(batch_x[0, :, :, :])
-                            a.set_title('input')
+                                #plt.imshow(batch_x[0, :, :, :])
+                                misc.imsave(path, batch_x[0, :, :, :])
+                            #a.set_title('input')
                         else:
-                            a = fig.add_subplot(1, n_class+1, aI+1)
-                            plt.imshow(aPred[0,:, :,aI-1], cmap=plt.cm.gray, vmin=0.0, vmax=1.0)
-                            # misc.imsave('out' + str(aI) + '.jpg', aPred[0,:, :,aI-1])
-                            a.set_title('Channel: ' + str(aI-1))
+                            #a = fig.add_subplot(1, n_class+1, aI+1)
+                            path = os.path.join(out_dir, img_stem + '_' + str(aI) + '.' + img_suffix)
+                            #plt.imshow(aPred[0,:, :,aI-1], cmap=plt.cm.gray, vmin=0.0, vmax=1.0)
+                            misc.imsave(path, aPred[0,:, :,aI-1])
+                            #a.set_title('Channel: ' + str(aI-1))
                     print('To go on just CLOSE the current plot.')
-                    plt.show()
+                    #plt.show()
+                    plt.clf()
+                    plt.close()
             self.output_epoch_stats_val(timeSum/val_size)
 
             print("Inference Finished!")
